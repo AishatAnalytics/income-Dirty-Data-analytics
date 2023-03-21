@@ -1,0 +1,110 @@
+---
+title: "Assignment4"
+author: "Aishat Olatunji"
+date: "2022-09-19"
+output: word_document
+---
+
+```{r}
+#Number one
+#file.choose()
+income_datapre<-read.csv( "/Users/aishatolatunji/Downloads/Income Dirty Data.csv")
+head(income_datapre)
+summary(income_datapre)
+prod(dim(income_datapre))# The total numbers of completedata set before imputations
+attach(income_datapre)
+# This helps in understanding the numbers of observations and numbers of attributes in the dataset
+dim(income_datapre)
+colnames(income_datapre)
+# The above results helps to know the names of each attributes.
+
+sum(is.na(income_datapre))#The total number of missing values in the data set is 290 variables
+
+# The total numbers of NA's availaible in each attributes.
+sum(is.na(gender))
+sum(is.na(age))
+sum(is.na(income))
+sum(is.na(tax..15..))
+
+library(dplyr)
+
+
+### Number 1b. .....
+No_na_income=na.omit(income_datapre)
+summary(No_na_income)
+dim(No_na_income)
+prod(dim(income_datapre)) # the total numbers of observations present in the data set.
+
+#The sum of the total numbers of complete data based on the dimensions and the percentage of the total numbers are given below;
+prod(dim(income_datapre)) - sum(is.na(income_datapre))
+# the output above shows that the total numbers of complete data is 4710.
+# and the percentage is
+(prod(dim(income_datapre))-sum(is.na(income_datapre)))/prod(dim(income_datapre))*100
+
+#The result below shows that the percentage of complete data set is 94.2%
+```
+
+```{r}
+#number2
+library(deducorrect)
+cr<- correctionRules(expression(if(!is.na(age) & age <18) age <- NA,
+if(!is.na(income)& income <1) income <-NA, 
+if(!is.na(tax..15..)& tax..15..<1) tax..15.. <-NA
+))
+cr
+corule<- correctWithRules(cr,income_datapre)
+data2<-corule$corrected
+dim(data2)
+sum(is.na(data2))
+#The numbers of missing value in data2 is 442
+#NROW(na.omit(data2))
+prod(dim(data2))
+
+# The result below shows the total numbers of observation without the missing values which is 4558.
+(prod(dim(data2))-sum(is.na(data2)))
+
+
+# the percentage of numbers without errors is 91.16 based on the output below.
+(prod(dim(data2))-sum(is.na(data2)))/prod(dim(data2))*100
+```
+```{r}
+#number 3
+cr2<- correctionRules (expression(if(!is.na(age) & age <10)age <- NA,
+if(!is.na(gender) & gender =="Man")gender <- "Male",
+if(!is.na(gender) & gender =="Men")gender <- "Male",
+if(!is.na(gender) & gender =="Woman")gender <- "Female",
+if(!is.na(gender) & gender =="Women")gender <- "Female",
+if(!is.na(income) & income<1) income <-NA, 
+if(!is.na(tax..15..) & tax..15..<1) tax..15.. <-NA, 
+if(!is.na(tax..15..) & is.na(income)) income <- (tax..15../0.15),
+if(!is.na(income) & is.na(tax..15..)) tax..15.. <- (income*0.15)
+))
+
+corules<- correctWithRules(cr2, income_datapre)
+data3 <-corules$corrected
+sum(is.na(data3))
+(prod(dim(data3))-sum(is.na(data3)))
+
+#The total number of completed data here is 4784
+
+#we still have 216 empty values, after we fixed/derived some tax and income values
+# what i observed based on the result above is that, we did some data cleansing to make our data consistence and change all our iregular gender patterns to the right format.
+#Based on the answer yes i believe we can obtain from the income column to reduce the the numbers of missing values contained in the data set.
+
+```
+
+
+```{r}
+#number 4
+summary(data3)
+dim(data3)
+# the summary before the imputations showws that we have a total number of 5000 observations
+
+library(VIM)
+data_imputation <- kNN(data3)
+sum(is.na(data_imputation))
+summary(data_imputation)
+
+#After imputations we have no missing values as all our missing values has been replaced by infered metthod.
+
+```
